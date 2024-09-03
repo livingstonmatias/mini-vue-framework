@@ -1,14 +1,14 @@
 # Mini framework javascript &#x1F680;
 
-Bienvenidos a este tutorial donde aprenderemos a crear un framework JavaScript muy sencillo, inspirado en Vue.js. A lo largo de este tutorial, construiremos un pequeño framework que nos ayudará a entender un poco cómo funcionan los frameworks frontend bajo el capo.
+Bienvenidos a este tutorial donde aprenderemos a crear un framework JavaScript muy sencillo, inspirado en Vue.js. A lo largo de este tutorial, analizaremos el codigo de un pequeño framework frontend, que nos ayudará a entender un poco cómo funcionan estos bajo el capo.
 
 Vue.js es conocido por su simplicidad para crear interfaces de usuario dinámicas. A medida que avancemos, desglosaremos cómo funciona Vue.js internamente y replicaremos algunas de sus características clave, como la creación de un Virtual DOM, el manejo de datos reactivos y la capacidad de renderizar componentes.
 
 ## ¿Qué aprenderás?
 
-- **Creación de un Virtual DOM**: Descubrirás cómo utilizar la funcion `h` (hyperscript) para crear nodos virtuales que luego se renderizarán en el DOM real.Además, aprenderás a desarrollar métodos para insertar y eliminar  estos nodos del DOM, específicamente las funciones `mount` ,`unmount` y `diff` para comparar los nodos.
-- **Mecanismo para la Reactividad**: Implementaremos un sistema básico de reactividad para que los datos cambien automáticamente en la interfaz cuando se actualicen. Utilizaremos el patrón observador para construir este sistema de reactividad y las funciones `reactive`, `watchEffect` y `watch`.
-- **Renderizando nuestro componente**: Veremos cómo construir un componente básico que se renderiza dinámicamente en función del estado de los datos. La funcion `createApp` se encargará de inicializar el componente y configurar su estado y comportamiento.
+- [**Creación de un Virtual DOM**](#Creación-de-un-Virtual-DOM): Descubrirás cómo utilizar la funcion `h` (hyperscript) para crear nodos virtuales que luego se renderizarán en el DOM real.Además, aprenderás a desarrollar métodos para insertar y eliminar  estos nodos del DOM, específicamente las funciones `mount` ,`unmount` y `diff` para comparar los nodos.
+- [**Mecanismo para la Reactividad**](#Mecanismo-para-la-Reactividad): Implementaremos un sistema básico de reactividad para que los datos cambien automáticamente en la interfaz cuando se actualicen. Utilizaremos el patrón observador para construir este sistema de reactividad y las funciones `reactive`, `watchEffect` y `watch`.
+- [**Renderizando nuestro componente**](#Renderizando-nuestro-componente): Veremos cómo construir un componente básico que se renderiza dinámicamente en función del estado de los datos. La funcion `createApp` se encargará de inicializar el componente y configurar su estado y comportamiento.
 
 Al final de este tutorial, tendrás una mejor idea de cómo funciona el DOM, cómo manipularlo con JavaScript y cómo los frameworks como Vue.js logran su magia.
 
@@ -27,7 +27,7 @@ Aquí es donde entran en juego los nodos virtuales, o **Virtual DOM**. En lugar 
 
 ## Paso 1: Implementar funcion `h` para crear Nodos Virtuales
 
-Para entender mejor cómo funciona, vamos implementar una versión simplificada de un nodo virtual con JavaScript. Define la siguiente función el archivo `src/dom.js`. La funcion `h` sera la encargada de crear los nodos virtuales:
+Para entender mejor cómo funciona, vamos implementar una versión simplificada de un nodo virtual con JavaScript. La funcion `h` sera la encargada de crear los nodos virtuales:
 
 ```javascript
 function h(tagName, props, children) {
@@ -46,7 +46,7 @@ La función `h` se utiliza para crear un nodo virtual en un Virtual DOM. Esta fu
 
 #### Argumentos
 
-1. **`tag`**:
+1. **`tagName`**:
    - **Tipo:** `string`
    - **Descripción:** El nombre del elemento HTML que se debe crear. Por ejemplo, `'div'`, `'span'`, `'p'`, etc. Este es el tipo de etiqueta HTML que se usará en el Virtual DOM.
 
@@ -70,7 +70,7 @@ La función `h` retorna un objeto que representa un nodo virtual. Este objeto ti
   - **Tipo:** `HTMLElement`
   - **Descripción:** Un elemento HTML creado con `document.createElement(tag)`. Aunque en el contexto de un Virtual DOM no se utiliza directamente para manipulación, este campo puede ser útil para referencia o depuración.
 
-- **`tag`**:
+- **`tagName`**:
   - **Tipo:** `string`
   - **Descripción:** El nombre del elemento HTML que fue pasado como argumento. Este valor se usa para identificar el tipo de elemento en el Virtual DOM.
 
@@ -103,12 +103,12 @@ function mount(vnode, container, nextSibling) {
             if (prop === 'style') {
                 const style = Object.entries(vnode.props[prop])
                     .reduce((acc, [k, v]) => {
-                        // cambia formato las key para que el navegador las entienda.
+                        // reduce el objeto a un array de string "k:v".
                         const key = k.replace(/[A-Z]/g, m => '-' + m.toLowerCase()).trim()
                         acc.push(key + ':' + v)
                         return acc
                     }, [])
-                // convierte la lista en string y separa los elementos con ";".
+                // concatena los elementos del array con ";" y convierte a string.
                 vnode.props[prop] = style.join(';').toString()
             }
             // si la prop es un listener.
@@ -120,7 +120,7 @@ function mount(vnode, container, nextSibling) {
             vnode.el.setAttribute(prop, vnode.props[prop])
         }
     }
-    // manejo de childrens del vnode.
+    // manejo de children del vnode.
     if (vnode.children || isZero(vnode.children)) {
         if (typeof vnode.children === 'string' || typeof vnode.children === 'number') {
             // si children en un primitivo string o number.
@@ -197,7 +197,7 @@ La función `unmount` se encarga de eliminar un nodo virtual (vnode) del DOM. Es
 function unmount(vnode) {
     // eliminar listeners.
     for (const prop in vnode.props) {
-        if (!(prop.startsWith('on') && typeof vnode.props[prop] === 'function')) continue;
+        if (!(prop.startsWith('on') && typeof vnode.props[prop] === 'function')) continue
         const event = prop.slice(2).toLowerCase()
         vnode.el.removeEventListener(event, vnode.props[prop])
     }
@@ -239,18 +239,22 @@ En resumen, la función `diff` se encarga de gestionar las actualizaciones del D
 
 ```javascript
 function diff(oldTree, newTree, container) {
-    unmount(oldTree);
+    // desmonta el arbol antiguo del DOM.
+    unmount(oldTree)
+    // monta el nuevo arbol en el DOM.
     mount(newTree, container)
 }
 ```
-### <span style="font-size:32px"> &#x1F9A5;</span> Soy algo peresozo y no tengo una implementacion para la funcion `diff`. Pero para fines didacticos de esta manera nos sirve.
+### <span style="font-size:32px"> &#x1F9A5;</span> Soy algo peresozo y no tengo una implementacion para la funcion `diff`. Pero para fines didacticos, esta solucion es aceptable.
 
 #### Ejemplo uso de la funcion `diff`:
 ```javascript
 const container = document.getElementById('root')
 const oldElement = h('h1',{ id:'old' }, 'Hello World!')
 const newElement = h('h1',{ id:'new' }, 'Hello World!')
+
 mount(oldElement, container)
+
 setTimeout(()=>{
   diff(oldElement, newElement, container)
 },5000)
@@ -267,20 +271,25 @@ El objeto dependency es una implementación del patrón de diseño conocido como
 
 ```javascript
 const dependency = {
+    // una array donde se van guardando las funciones o objetos.
     observers: [],
 
+    // suscribe una funcion o un objeto a la lista de observadores.
     subscribe(effect) {
         this.observers.push(effect)
     },
-
+    // recorre la lista de observadores y ejecuta un callback si hay un cambio de estado.
     notify(state, newValue, oldValue) {
         this.observers.forEach((effect) => {
             if (!effect) return
 
+            // si el observador es una funcion.
             if (typeof effect === 'function') {
                 effect();
             }
 
+            // si el observador es un objeto ejecuta su metodo "callback".
+            // pasa por argumento el nuevo y antiguo valor.
             if (typeof effect === 'object' && state === effect.state) {
                 effect.callback(newValue, oldValue)
             }
@@ -324,11 +333,13 @@ El objeto reactive convierte un objeto ordinario en un objeto reactivo, lo que s
 ```javascript
 function reactive(states) {
     Object.keys(states).forEach(state => {
-        let value = states[state];
+        let value = states[state]
+        // hace un wrapper con defineProperty del objeto "states" por medio de "get" y "set".
         Object.defineProperty(states, state, {
             get() {
                 return value
             },
+            // por medio de "set" se optiene el nuevo valor para el estado.
             set(newValue) {
                 const oldValue = value
                 if (isEveryPrimitives(newValue, oldValue) && newValue === oldValue) {
@@ -338,7 +349,8 @@ function reactive(states) {
                 if (isEveryObjects(newValue, oldValue) && isEqualsObject(newValue, oldValue)) {
                     return
                 }
-                value = newValue;
+                value = newValue
+                // se notifica el cambio de estado.
                 dependency.notify(state, newValue, oldValue)
             }
         })
@@ -370,8 +382,9 @@ watchEffect permite a los usuarios registrar una función que debe ejecutarse ca
 
 ```javascript
 function watchEffect(callback) {
-    dependency.subscribe(callback);
-    callback();
+    // suscribe y ejecuta la funcion callback a todos estados.
+    dependency.subscribe(callback)
+    callback()
 }
 ```
 
@@ -389,11 +402,13 @@ watch se utiliza para observar cambios en un estado específico y ejecutar una f
 
 ```javascript
 function watch(callback, state) {
+    // filtra entre la lista de observadores buscando el estado.
     const effect = dependency.observers
         .filter(effect => typeof effect !== 'function')
         .filter(effect => effect.state === state)
-
+    // si el estado ya se encuentra en la lista de observadores retorna.
     if (effect.length) return
+    // pero si no existe lo suscribe.
     dependency.subscribe({ state, callback })
 }
 ```
