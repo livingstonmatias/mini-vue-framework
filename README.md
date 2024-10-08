@@ -1,4 +1,4 @@
-# Mini framework javascript &#x1F680;
+# Mini framework frontend javascript &#x1F680;
 
 Bienvenidos a este tutorial donde aprenderemos a crear un framework JavaScript muy sencillo, inspirado en Vue.js. A lo largo de este tutorial, analizaremos el codigo de un pequeño framework frontend, que nos ayudará a entender un poco cómo funcionan estos bajo el capo.
 
