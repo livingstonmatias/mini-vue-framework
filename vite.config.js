@@ -2,5 +2,5 @@
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  base: 'https://livingstonmatias.github.io/mini-framework/'
+  base: 'https://livingstonmatias.github.io/mini-vue-framework/'
 })
